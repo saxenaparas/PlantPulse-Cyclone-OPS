@@ -1,6 +1,6 @@
-# Cyclone Machine Time-Series — EDA ▪ Shutdowns ▪ Operating States ▪ Contextual Anomalies ▪ 1-Hour Forecast
-
->**Pure-Python CLI (Windows-friendly, deterministic)**
+# 🤖 PlantPulse-Cyclone-OPS
+> - Cyclone Machine Time-Series — EDA ▪ Shutdowns ▪ Operating States ▪ Contextual Anomalies ▪ 1-Hour Forecast  
+> - **Pure-Python CLI (Windows-friendly, deterministic)**
 
 **Author:** Paras Saxena  
 
