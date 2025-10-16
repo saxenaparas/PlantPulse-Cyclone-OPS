@@ -1,0 +1,9 @@
+2025-10-14 19:23:30,771 | INFO | Logging initialized: logs\run_cluster_states.log
+2025-10-14 19:24:40,639 | INFO | Loaded data: 377719 rows, 2017-01-01 00:00:00 to 2020-08-07 12:15:00
+2025-10-14 19:24:41,194 | INFO | Resampled to 5min grid: 378580 rows
+2025-10-14 19:26:14,345 | INFO | Chosen K=3 with silhouette=0.645
+2025-10-14 19:26:14,921 | INFO | Saved clusters summary: outputs\clusters_summary.csv
+2025-10-14 19:26:15,675 | INFO | Saved figure: outputs\elbow.png
+2025-10-14 19:26:16,104 | INFO | Saved figure: outputs\silhouette.png
+2025-10-14 19:26:28,911 | INFO | Saved figure: outputs\cluster_scatter.png
+2025-10-14 19:26:30,918 | INFO | Saved state labels: outputs\state_labels.csv

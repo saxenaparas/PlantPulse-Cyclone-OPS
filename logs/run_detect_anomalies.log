@@ -1,0 +1,5 @@
+2025-10-14 19:26:36,524 | INFO | Logging initialized: logs\run_detect_anomalies.log
+2025-10-14 19:27:42,562 | INFO | Loaded data: 377719 rows, 2017-01-01 00:00:00 to 2020-08-07 12:15:00
+2025-10-14 19:27:42,945 | INFO | Resampled to 5min grid: 378580 rows
+2025-10-14 19:28:22,285 | INFO | Saved anomalies: outputs\anomalous_periods.csv
+2025-10-14 19:29:28,773 | INFO | Saved figure: outputs\anomalies_plot.png

@@ -1,0 +1,59 @@
+# --- Python bytecode/cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Env/secrets files ---
+.env
+.env.*
+*.env
+
+# --- Build & packaging artifacts ---
+build/
+dist/
+.eggs/
+*.egg-info/
+*.manifest
+*.spec
+
+# --- Tests & coverage ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --- Type checkers / linters ---
+.mypy_cache/
+.pyre/
+.pytype/
+ruff_cache/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- IDE/editor metadata ---
+.vscode/
+.idea/
+*.code-workspace
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Model caches (Task-2) ---
+# Keep indexes and outputs in repo; just ignore model download caches.
+models/                 # local HF/SBERT cache (rag/MODEL_CACHE_DIR)
+.cache/                 # generic local caches
+
+# --- NOTE: We intentionally DO NOT ignore these so they are committed ---
+# outputs/
+# data/index/
+# data/corpus/
+# logs/
