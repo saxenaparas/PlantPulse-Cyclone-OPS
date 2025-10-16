@@ -27,7 +27,7 @@
 ## 🗂️ Repository Structure
 
 ```
-Paras_Saxena_Task1/
+PlantPulse-Cyclone-OPS/
   README.md
   requirements.txt
   data.xlsx                 # assignment data (committed for review)
@@ -58,7 +58,7 @@ Paras_Saxena_Task1/
 
 ## ✅ Dev Preflight Checklist [Setup-Summary] *(copy-paste)*
 
-> Run from project root `Paras_Saxena_Task1/`
+> Run from project root `PlantPulse-Cyclone-OPS/`
 
 **Windows PowerShell (Python 3.11 recommended):**
 
