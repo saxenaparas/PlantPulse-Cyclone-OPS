@@ -1,5 +1,3 @@
----
-
 # Cyclone Machine Time-Series — EDA ▪ Shutdowns ▪ Operating States ▪ Contextual Anomalies ▪ 1-Hour Forecast
 
 >**Pure-Python CLI (Windows-friendly, deterministic)**
