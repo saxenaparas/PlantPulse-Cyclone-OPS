@@ -1,0 +1,31 @@
+2025-11-04 16:14:58 | INFO | analysis.py started
+2025-11-04 16:14:58 | INFO | data_path=D:\Projects\PlantPulse-Cyclone-OPS\data.xlsx outdir=outputs plots_dir=plots quick=True force=False
+2025-11-04 16:14:58 | INFO | Using RANDOM_SEED=42
+2025-11-04 16:14:58 | INFO | SKIP eda: expected outputs exist (eda_summary.csv, correlations.png). Use --force to re-run.
+2025-11-04 16:14:59 | INFO | SKIP shutdowns: expected outputs exist (shutdown_periods.csv, shutdown_plot.png). Use --force to re-run.
+2025-11-04 16:14:59 | INFO | SKIP clusters: expected outputs exist (clusters_summary.csv, state_labels.csv, cluster_scatter.png). Use --force to re-run.
+2025-11-04 16:15:00 | INFO | SKIP anomalies: expected outputs exist (anomalous_periods.csv, anomalies_plot.png). Use --force to re-run.
+2025-11-04 16:15:00 | INFO | START step=forecast module=scripts.run_forecast_1h cmd='D:\Projects\PlantPulse-Cyclone-OPS\.venv\Scripts\python.exe' -m scripts.run_forecast_1h --data_path 'D:\Projects\PlantPulse-Cyclone-OPS\data.xlsx' --outdir outputs
+2025-11-04 16:25:00 | ERROR | Process timed out and was killed: ['D:\\Projects\\PlantPulse-Cyclone-OPS\\.venv\\Scripts\\python.exe', '-m', 'scripts.run_forecast_1h', '--data_path', 'D:\\Projects\\PlantPulse-Cyclone-OPS\\data.xlsx', '--outdir', 'outputs']
+2025-11-04 16:25:00 | ERROR | Step forecast timed out after 600 seconds. See D:\Projects\PlantPulse-Cyclone-OPS\logs\forecast.log for partial logs.
+Traceback (most recent call last):
+  File "D:\Projects\PlantPulse-Cyclone-OPS\analysis.py", line 169, in run_step
+    code = stream_subprocess(cmd, step_log, timeout, logger)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\PlantPulse-Cyclone-OPS\analysis.py", line 136, in stream_subprocess
+    proc.wait(timeout=timeout)
+  File "C:\Users\paras\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\paras\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1593, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['D:\\Projects\\PlantPulse-Cyclone-OPS\\.venv\\Scripts\\python.exe', '-m', 'scripts.run_forecast_1h', '--data_path', 'D:\\Projects\\PlantPulse-Cyclone-OPS\\data.xlsx', '--outdir', 'outputs']' timed out after 600 seconds
+2025-11-04 16:25:01 | INFO | Pipeline Summary:
+2025-11-04 16:25:01 | INFO |  - eda: skipped=True code=0 missing=[]
+2025-11-04 16:25:01 | INFO |  - shutdowns: skipped=True code=0 missing=[]
+2025-11-04 16:25:01 | INFO |  - clusters: skipped=True code=0 missing=[]
+2025-11-04 16:25:01 | INFO |  - anomalies: skipped=True code=0 missing=[]
+2025-11-04 16:25:01 | INFO |  - forecast: skipped=False code=-1 missing=['outputs\\forecasts.csv', 'outputs\\backtest_metrics.csv', 'outputs\\forecast_plot.png']
+2025-11-04 16:25:01 | INFO | Copied 8 png(s) to plots
+2025-11-04 16:25:01 | INFO | analysis.py finished
+2025-11-04 16:25:01 | ERROR | One or more steps failed or timed out.
