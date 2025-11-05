@@ -1,14 +1,17 @@
 # 🤖 PlantPulse-Cyclone-OPS
+> - Time-series analysis pipeline for cyclone/plant telemetry — shutdown detection, behavioral clustering, contextual anomaly detection, and 1‑hour forecasting.
 > - Cyclone Machine Time-Series — EDA ▪ Shutdowns ▪ Operating States ▪ Contextual Anomalies ▪ 1-Hour Forecast  
-> - **Pure-Python CLI (Windows-friendly, deterministic)**
+> - Clean, deterministic, **Pure-Python CLI Script (Windows-friendly, deterministic & no notebooks)** that run the full pipeline on `data.xlsx` (5‑minute telemetry).
 
 **Author:** Paras Saxena  
 
-- **What:** A scriptable pipeline for **industrial 5-minute telemetry** (cyclone machine).  
-- **Why:** Discover **shutdown/idle periods**, **characterize operating states**, flag **contextual anomalies** safely, and **forecast 1 hour ahead** to support **reliability & maintenance planning**.  
-- **Inputs:** CSV or Excel (`.xlsx`) with a timestamp column and sensor variables.  
+It's a scriptable pipeline for **industrial 5-minute telemetry** (cyclone machine) & helps to discover **shutdown/idle periods**, **characterize operating states**, flag **contextual anomalies** safely, and **forecast 1 hour ahead** to support **reliability & maintenance planning**.  
+
+- **Steps:** EDA → Shutdown detection → Clustering (states) → Contextual anomalies → 1‑hour forecasting (backtest + model comparison).
+- **Entrypoint:** `analysis.py` — single orchestrator that will re-run missing steps or run selected steps.  
+- **Inputs:** CSV or Excel (`.xlsx`) with a timestamp column and sensor variables.
 - **Granularity:** Resampled to a **strict 5-minute grid** (deterministic).  
-- **Outputs:** All CSVs/PNGs in `outputs/`, logs in `logs/`. *(You’re committing outputs + index + corpus so reviewers can verify instantly.)*
+- **Outputs:** All CSVs/PNGs in `outputs/`, logs in `logs/`. *(Committing outputs + index + corpus so results can be verifed instantly.)*
 
 ---
 
@@ -24,32 +27,65 @@
 
 ---
 
+## 🌟 Important Features
+
+- `analysis.py` orchestrates the full pipeline (full or quick modes). It checks for required CSV artifacts and will re-run missing steps unless `--quick` is used.
+- Per‑step timeouts: `--quick` uses a conservative per‑step timeout (default **600s**). Use `--timeout <seconds>` to override for all steps. Use `--timeout 0` to disable timeouts (or provide a very large value like `--timeout 86400`) if you want the pipeline to run until completion.
+- Forecasting can compares ≥2 methods and writes the comparison to `outputs/backtest_metrics.csv` and `outputs/forecasts.csv` (model, y_true, y_pred, timestamp). See **Forecast notes** below.
+- Plots: `analysis.py` copies key PNGs to `plots/` (single-year view, anomaly annotations, forecast plot) so the visual story is easy to browse on GitHub.
+
+---
+
 ## 🗂️ Repository Structure
 
 ```
 PlantPulse-Cyclone-OPS/
-  README.md
-  requirements.txt
-  data.xlsx                 # assignment data (committed for review)
-  logs/                     # run logs
-  outputs/                  # CSVs / plots
-  scripts/
-    __init__.py             # enables `python -m scripts.run_*`
-    run_eda.py
-    run_detect_shutdowns.py
-    run_cluster_states.py
-    run_detect_anomalies.py
-    run_forecast_1h.py
-  src/
-    __init__.py
-    config.py               # all constants with comments
-    utils_io.py             # robust IO, timestamp parse, 5-min resample
-    features.py             # rolling features (15/30/60 min)
-    eda.py
-    detect_shutdowns.py
-    cluster_states.py
-    detect_anomalies.py
-    forecast_1h.py
+├─ README.md
+├─ analysis.py                 # Single CLI orchestration entrypoint
+├─ data.xlsx                   # analysis data (committed for review not committed for public use unless allowed)
+├─ logs/                       # run logs
+│   ├─ analysis.log
+│   ├─ run_eda.log
+│   ├─ run_detect_shutdowns.log
+│   ├─ run_cluster_states.log
+│   ├─ run_detect_anomalies.log
+│   └─ run_forecast_1h.log
+├─ outputs/                    # CSVs & PNGs (created by scripts)
+│   ├─ eda_summary.csv
+│   ├─ correlations.png
+│   ├─ week_view.png
+│   ├─ year_view.png
+│   ├─ shutdown_periods.csv
+│   ├─ shutdown_plot.png
+│   ├─ clusters_summary.csv
+│   ├─ state_labels.csv
+│   ├─ cluster_scatter.png
+│   ├─ elbow.png
+│   ├─ silhouette.png
+│   ├─ anomalous_periods.csv
+│   ├─ anomalies_plot.png
+│   ├─ forecasts.csv            # created after full forecast run
+│   ├─ backtest_metrics.csv     # created after full forecast run (MAE/RMSE)
+│   └─ forecast_plot.png
+├─ plots/                       # README-friendly copy of important PNGs (created by analysis.py)
+├─ requirements.txt
+├─ scripts/
+│   ├─ __init__.py              # enables `python -m scripts.run_*`
+│   ├─ run_eda.py
+│   ├─ run_detect_shutdowns.py
+│   ├─ run_cluster_states.py
+│   ├─ run_detect_anomalies.py
+│   └─ run_forecast_1h.py
+└─ src/
+    ├─ __init__.py
+    ├─ config.py                 # all constants with comments
+    ├─ utils_io.py               # robust IO, timestamp parse, 5-min resample
+    ├─ eda.py
+    ├─ detect_shutdowns.py
+    ├─ cluster_states.py
+    ├─ detect_anomalies.py
+    ├─ features.py               # rolling features (15/30/60 min)
+    └─ forecast_1h.py
 ```
 
 > Tip: keeping `__init__.py` in `scripts/` lets you run commands in **module mode** (`python -m scripts.run_*`), which avoids PYTHONPATH issues.
@@ -84,57 +120,68 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 Quick Start (Full Pipeline)
+### 🚀 Quick Start (Full Pipeline)
 
-**Windows PowerShell**
-
-```powershell
-python -m scripts.run_eda              --data_path "data.xlsx" --outdir outputs
-python -m scripts.run_detect_shutdowns --data_path "data.xlsx" --outdir outputs
-python -m scripts.run_cluster_states   --data_path "data.xlsx" --outdir outputs --shutdowns_csv "outputs\shutdown_periods.csv"
-python -m scripts.run_detect_anomalies --data_path "data.xlsx" --outdir outputs --clusters_csv "outputs\state_labels.csv"
-python -m scripts.run_forecast_1h      --data_path "data.xlsx" --outdir outputs --target_col "Cyclone_Inlet_Gas_Temp"
-```
-
-**Bash/macOS**
-
-```bash
-python -m scripts.run_eda --data_path data.xlsx --outdir outputs && \
-python -m scripts.run_detect_shutdowns --data_path data.xlsx --outdir outputs && \
-python -m scripts.run_cluster_states --data_path data.xlsx --outdir outputs --shutdowns_csv outputs/shutdown_periods.csv && \
-python -m scripts.run_detect_anomalies --data_path data.xlsx --outdir outputs --clusters_csv outputs/state_labels.csv && \
-python -m scripts.run_forecast_1h --data_path data.xlsx --outdir outputs --target_col Cyclone_Inlet_Gas_Temp
-```
-
-Tail logs live (Windows):
+>**Quick preflight (fast) — runs only checks and quick versions of heavy steps**
 
 ```powershell
-Get-Content .\logs\run_eda.log -Wait
-Get-Content .\logs\run_detect_shutdowns.log -Wait
-Get-Content .\logs\run_cluster_states.log -Wait
-Get-Content .\logs\run_detect_anomalies.log -Wait
-Get-Content .\logs\run_forecast_1h.log -Wait
+python analysis.py --data_path "data.xlsx" --outdir "outputs" --plots_dir "plots" --quick
 ```
 
----
 
-## 🧪 Run Specific Steps Only
+### 💼 Full run (no time limit): disable timeouts or increase timeout
+
+**Option A:** disable timeouts (if supported)
+```powershell
+python analysis.py --data_path "data.xlsx" --outdir "outputs" --plots_dir "plots" --force --timeout 0
+```
+**Option B:** allow long but finite time (e.g., 1 hour per step)
+```
+python analysis.py --data_path "data.xlsx" --outdir "outputs" --plots_dir "plots" --force --timeout 3600
+```
+
+#### 🚩 Final One‑Liner (Run Everything, Full Fidelity)
+```powershell
+python analysis.py --data_path "data.xlsx" --outdir "outputs" --plots_dir "plots" --force --timeout 0 
+```
+
+> 📜 **Notes:**
+>
+> * `--quick` = conservative, short timeouts (600s per step) and sampling where applicable so reviewers can get a result fast.
+> * `--force` forces re-run of steps even if outputs already exist.
+> * If you encounter a heavy step (ARIMA fitting / clustering on full records), use `--timeout` to increase or `--force` + `--quick` to run a sampled/faster variant.
+
+> 📌 **Practical Guidance for Use:**
+> - If you have a laptop/desktop with 8+ cores and 16+ GB RAM: try `--timeout 3600` (1 hour) for full fidelity. For exact reproducibility on the original dataset, supply `--timeout 0` to let the run finish.
+> - If you need a fast check: use the `--quick` flag.
+
+
+### 🆚 Quick vs Full mode (detailed)
+
+- **Quick mode** (`--quick`): default per-step timeout = **600 seconds (10 minutes)**. Recommended for reviewers who want to verify functionality without waiting for heavy model fits.
+
+> Sampling applied in heavy steps (e.g., silhouette search may use a sampled subset; ARIMA autoregression search is limited).
+
+- **Full mode** (use `--force` and a large `--timeout` or `--timeout 0`): runs using full data and full hyperparameter searches. Expect heavy steps (clustering on ~378k rows, ARIMA backtesting) to take significantly longer — potentially tens of minutes to hours depending on machine.
+
+### 🧪 Run Specific Steps Only
 
 ```powershell
 # EDA
-python -m scripts.run_eda --data_path "data.xlsx" --outdir outputs
+python -m scripts.run_eda --data_path "data.xlsx" --outdir "outputs"
 
 # Shutdown detection
-python -m scripts.run_detect_shutdowns --data_path "data.xlsx" --outdir outputs
+python -m scripts.run_detect_shutdowns --data_path "data.xlsx" --outdir "outputs"
 
 # Clustering (uses shutdowns to mask idle if provided)
-python -m scripts.run_cluster_states --data_path "data.xlsx" --outdir outputs --shutdowns_csv "outputs\shutdown_periods.csv"
+python -m scripts.run_cluster_states --data_path "data.xlsx" --outdir "outputs" --shutdowns_csv "outputs/shutdown_periods.csv"
 
 # Contextual anomalies (needs state_labels.csv)
-python -m scripts.run_detect_anomalies --data_path "data.xlsx" --outdir outputs --clusters_csv "outputs\state_labels.csv"
+python -m scripts.run_detect_anomalies --data_path "data.xlsx" --outdir "outputs" --clusters_csv "outputs/state_labels.csv"
 
 # 1-hour ahead forecast (12×5-min)
-python -m scripts.run_forecast_1h --data_path "data.xlsx" --outdir outputs --target_col "Cyclone_Inlet_Gas_Temp"
+python -m scripts.run_forecast_1h --data_path "data.xlsx" --outdir "outputs" --target_col "Cyclone_Inlet_Gas_Temp"
+
 ```
 
 ---
@@ -157,6 +204,27 @@ Key constants (CLI may override some):
 
 ---
 
+## 🧿 How `analysis.py` Behaves (Transparent Execution)
+
+- It checks for required artifacts in `outputs/`. If files are present, that step is skipped (to preserve reproducibility and save time).
+- If a required file is missing, `analysis.py` will run the corresponding script and stream the child process logs to `logs/<step>.log` and to the terminal.
+- Each step has a per-step timeout (controlled by `--timeout` when using `analysis.py`). If a step exceeds the timeout, the process is killed and the pipeline reports which outputs are missing.
+
+> This design lets an user either run `--quick` for a fast verification or run full without time limits for exact reproduction.
+
+---
+
+## 🧐 Where to Look for Results
+
+- `outputs/eda_summary.csv` — EDA summary
+- `outputs/shutdown_periods.csv` — detected shutdowns (start,end,duration_min,reason)
+- `outputs/clusters_summary.csv` & `outputs/state_labels.csv` — cluster labels and summary
+- `outputs/anomalous_periods.csv` — anomaly intervals with method & score
+- `outputs/forecasts.csv` & `outputs/backtest_metrics.csv` — forecasting predictions and metrics
+- `plots/one_year_with_shutdowns.png` and `plots/anomaly_*.png` — curated visuals
+
+---
+
 ## 🧠 Methods (short & practical)
 
 **EDA**
@@ -166,7 +234,7 @@ Robust timestamp parse → enforce 5-min grid → summarize missingness, basic s
 Domain thresholds on key sensors + **minimum duration** to avoid chatter; export consolidated intervals.
 
 **Operating States (clustering)**
-Rolling features over 15/30/60 min (mean/std/diff), standardize, KMeans with `K∈[2..8]`; pick K by **silhouette**; name clusters in comments for interpretability (e.g., *High Load*, *Degraded*, *Idle*).
+Rolling features over 15/30/60 min (mean/std/diff), standardize, KMeans with **`K∈[2..8]`**; pick K by **silhouette**; name clusters in comments for interpretability (e.g., *High Load*, *Degraded*, *Idle*).
 
 **Contextual Anomalies**
 Per-state **IsolationForest** (so “weird for *this* state”), plus **rolling-MAD** as a simple statistical back-stop; de-duplicate overlaps; export intervals + scores.
@@ -235,16 +303,63 @@ Heavy parts are **silhouette** (O(n²)) and ARIMA backtests. These patches keep 
 
 ## 🔁 Reproducibility
 
-* Global seed in `config.py`
-* No notebooks; all steps are CLIs with pinned dependencies
-* Logs show start/end times, shapes, thresholds, K selection, and backtest folds
+- Global seed in `config.py`
+- No notebooks; all steps are CLIs with pinned dependencies
+- Logs show start/end times, shapes, thresholds, K selection, and backtest folds
+
+---
+
+## 📊 Plots & Annotated Year View
+
+Here, `analysis.py` creates a curated `plots/` folder containing:
+
+- `one_year_with_shutdowns.png` — one full-year overview with shutdown intervals highlighted.
+- `anomaly_1.png` .. `anomaly_6.png` — up to 6 annotated anomaly zoom-ins with short root‑cause note placeholders.
+- `forecast_plot.png` — forecast vs true for a validation window.
+
+> These images are also copied into `outputs/` (PNG)
 
 ---
 
 
+## 📑 Forecast Notes & Interpretation (RMSE / MAE)
+
+- The forecasting step performs a walk‑forward backtest and compares multiple models (naive, seasonal naive, ARIMA, and a tree model like `GradientBoostingRegressor`).
+- The backtest writes `outputs/backtest_metrics.csv` with columns: `model, fold, mae, rmse` and `outputs/forecasts.csv` containing `timestamp,y_true,y_pred,model`.
+
+### 🔎 How to Interpret Metrics
+
+- **MAE (Mean Absolute Error):** average absolute error in the same units as the target. Lower = better. Good for robust error magnitude.
+- **RMSE (Root Mean Squared Error):** penalizes larger errors more strongly. Useful to identify models that occasionally make large misses.
+
+A short summary (example you might add to README after running):
+
+```
+Forecast Comparison (Example)
+-------------------------=-------=------
+          Model          |  MAE  | RMSE
+-------------------------|-------|------
+  Naive                  | 0.84  | 1.12
+  Seasonal_Naive         | 0.76  | 1.03
+  GradientBoosting       | 0.62  | 0.90  <- winner in this dataset
+  ARIMA (auto)           | 0.68  | 0.97
+-------------------------=-------=------
+```
+
+---
+
+## 🕵🏻 Insights & Recommendations
+
+1. **Frequent short shutdowns dominate downtime.** Many shutdown intervals are short (e.g., < 30 minutes) — investigate whether these are control trips or measurement artifacts and target top 20% culprits for operational fixes.
+2. **State clusters separate production vs idle/maintenance modes clearly.** Use cluster labels to build state‑aware dashboards; contextual anomaly detectors should only run in relevant states (avoid flagging expected behavior during maintenance).
+3. **Anomalies often precede shutdowns by short windows.** Use anomaly scores as an early‑warning signal to reduce unplanned downtime—test a simple alert: anomaly score > threshold sustained for 15–20 minutes.
+4. **Forecasting shows seasonal (daily) structure at 5‑min granularity.** Tree‑based models with lag features gave the best backtest performance (lower RMSE) on our data; deploy these in a short horizon ensemble with a seasonal naive fallback for reliability.
+5. **Data hygiene:** enforce strict 5‑min indexing at ingestion and surface gaps > 15 minutes — these gaps materially affect rolling features and ARIMA fitting.
+
+---
+
 ## 📜 License & Data
 
 This repository contains **sample documents** and **derived artifacts** strictly for evaluation and learning. If you fork or reuse, ensure you have rights to redistribute your own documents and respect any proprietary content.
-
 
 ---
