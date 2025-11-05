@@ -28,28 +28,52 @@
 
 ```
 PlantPulse-Cyclone-OPS/
-  README.md
-  requirements.txt
-  data.xlsx                 # assignment data (committed for review)
-  logs/                     # run logs
-  outputs/                  # CSVs / plots
-  scripts/
-    __init__.py             # enables `python -m scripts.run_*`
-    run_eda.py
-    run_detect_shutdowns.py
-    run_cluster_states.py
-    run_detect_anomalies.py
-    run_forecast_1h.py
-  src/
-    __init__.py
-    config.py               # all constants with comments
-    utils_io.py             # robust IO, timestamp parse, 5-min resample
-    features.py             # rolling features (15/30/60 min)
-    eda.py
-    detect_shutdowns.py
-    cluster_states.py
-    detect_anomalies.py
-    forecast_1h.py
+├─ README.md
+├─ analysis.py                 # Single CLI orchestration entrypoint
+├─ data.xlsx                   # analysis data (committed for review not committed for public use unless allowed)
+├─ logs/                       # run logs
+│  ├─ analysis.log
+│  ├─ run_eda.log
+│  ├─ run_detect_shutdowns.log
+│  ├─ run_cluster_states.log
+│  ├─ run_detect_anomalies.log
+│  └─ run_forecast_1h.log
+├─ outputs/                    # CSVs & PNGs (created by scripts)
+│  ├─ eda_summary.csv
+│  ├─ correlations.png
+│  ├─ week_view.png
+│  ├─ year_view.png
+│  ├─ shutdown_periods.csv
+│  ├─ shutdown_plot.png
+│  ├─ clusters_summary.csv
+│  ├─ state_labels.csv
+│  ├─ cluster_scatter.png
+│  ├─ elbow.png
+│  ├─ silhouette.png
+│  ├─ anomalous_periods.csv
+│  ├─ anomalies_plot.png
+│  ├─ forecasts.csv             # created after full forecast run
+│  ├─ backtest_metrics.csv      # created after full forecast run (MAE/RMSE)
+│  └─ forecast_plot.png
+├─ plots/                       # README-friendly copy of important PNGs (created by analysis.py)
+├─ requirements.txt
+├─ scripts/
+│  ├─ __init__.py               # enables `python -m scripts.run_*`
+│  ├─ run_eda.py
+│  ├─ run_detect_shutdowns.py
+│  ├─ run_cluster_states.py
+│  ├─ run_detect_anomalies.py
+│  └─ run_forecast_1h.py
+└─ src/
+├─ **init**.py
+├─ config.py                    # all constants with comments
+├─ utils_io.py                  # robust IO, timestamp parse, 5-min resample
+├─ eda.py
+├─ detect_shutdowns.py
+├─ cluster_states.py
+├─ detect_anomalies.py
+├─ features.py                  # rolling features (15/30/60 min)
+└─ forecast_1h.py
 ```
 
 > Tip: keeping `__init__.py` in `scripts/` lets you run commands in **module mode** (`python -m scripts.run_*`), which avoids PYTHONPATH issues.
