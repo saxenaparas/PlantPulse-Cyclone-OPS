@@ -92,7 +92,7 @@ PlantPulse-Cyclone-OPS/
 
 ---
 
-## ✅ Dev Preflight Checklist [Setup-Summary] *(copy-paste)*
+## ✅ Dev Preflight Checklist [Setup-Summary]
 
 > Run from project root `PlantPulse-Cyclone-OPS/`
 
@@ -155,6 +155,12 @@ python analysis.py --data_path "data.xlsx" --outdir "outputs" --plots_dir "plots
 > - If you have a laptop/desktop with 8+ cores and 16+ GB RAM: try `--timeout 3600` (1 hour) for full fidelity. For exact reproducibility on the original dataset, supply `--timeout 0` to let the run finish.
 > - If you need a fast check: use the `--quick` flag.
 
+> ⚠️ **❗Note on sample dataset❗:**  
+> For **faster demonstration** or testing, a reduced dataset `data_20k.xlsx` (≈20,000 rows) is provided (whereas `data.xlsx` contains more than 376k+ rows).  
+> **Just provide `data_20.xlsx` in the `--data_path`:**
+> ```powershell
+> python analysis.py --data_path "data_20k.xlsx" --outdir "outputs" --plots_dir "plots" --force --timeout 0
+> ```
 
 ### 🆚 Quick vs Full mode (detailed)
 
